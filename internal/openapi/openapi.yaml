@@ -1,0 +1,199 @@
+
+openapi: 3.0.3
+info:
+  title: Sequence API Documentation
+  version: 0.1.0
+paths:
+  /v1/sequences:
+    post:
+      operationId: create-sequence
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Sequence"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sequence"
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Error
+      summary: Create sequence
+      tags:
+        - Sequences
+  /v1/sequences/{id}:
+    put:
+      operationId: update-sequence
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSequenceInput"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sequence"
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Error
+      summary: Update sequence
+      tags:
+        - Sequences
+  /v1/sequences/{sequence_id}/steps/{step_id}:
+    put:
+      operationId: update-sequence-step
+      parameters:
+        - name: sequence_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: step_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSequenceStepInput"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SequenceStep"
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Error
+      summary: Update sequence step
+      tags:
+        - Sequences
+    delete:
+      operationId: delete-sequence-step
+      parameters:
+        - name: sequence_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: step_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Error
+      summary: Delete sequence step
+      tags:
+        - Sequences
+components:
+  schemas:
+    Sequence:
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        openTrackingEnabled:
+          type: boolean
+        clickTrackingEnabled:
+          type: boolean
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/SequenceStep"
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+        - id
+        - name
+        - openTrackingEnabled
+        - clickTrackingEnabled
+        - steps
+      type: object
+    SequenceStep:
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        emailSubject:
+          type: string
+        emailContent:
+          type: string
+        daysAfterPreviousStep:
+          type: integer
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+        - id
+        - emailSubject
+        - emailContent
+        - daysAfterPreviousStep
+    UpdateSequenceStepInput:
+      additionalProperties: false
+      properties:
+        emailSubject:
+          type: string
+        emailContent:
+          type: string
+    UpdateSequenceInput:
+      additionalProperties: false
+      properties:
+        openTrackingEnabled:
+          type: boolean
+        clickTrackingEnabled:
+          type: boolean
+    Error:
+      additionalProperties: false
+      required:
+        - message
+        - status
+      properties:
+        message:
+          type: string
+        status:
+          description: HTTP status code
+          example: 400
+          format: int64
+          type: integer
+      type: object

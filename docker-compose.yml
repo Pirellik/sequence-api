@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:17.5
+    ports:
+      - "5455:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sequence-db
+    volumes:
+      - ${PWD}/.db-data/:/var/lib/postgresql/data/
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["/sequence-api"]
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: sequence-db
+      LOGGER_LEVEL: debug
+      LOGGER_HUMAN_READABLE: true
+      API_PORT: 8080
+    depends_on:
+      db:
+        condition: service_healthy
